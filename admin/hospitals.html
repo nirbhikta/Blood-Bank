@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospitals - BBMS Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design/style.css?v=2">
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar-overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-13-7-13Z" fill="#fff"/><path d="M9.5 15.5a2.5 2.5 0 0 0 2.5 2.5" stroke="#e0242f" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="logo-text">
+        <div class="brand">BBMS</div>
+        <div class="sub">Blood Bank Management System</div>
+      </div>
+    </div>
+    <ul class="nav-list">
+      <li><a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="donors.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.7.2 4.7 2.4 4.7 5.3"/></svg>
+        Donors
+      </a></li>
+      <li><a href="blood-inventory.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3Z"/></svg>
+        Blood Inventory
+      </a></li>
+      <li><a href="blood-requests.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2.5v3M16 2.5v3M4 9.5h16"/></svg>
+        Blood Requests
+      </a></li>
+      <li><a href="hospitals.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16"/></svg>
+        Hospitals
+      </a></li>
+      <li><a href="reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="3.5" height="10"/><rect x="10.3" y="6" width="3.5" height="14"/><rect x="16.5" y="3" width="3.5" height="17"/></svg>
+        Reports
+      </a></li>
+      <li><a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5c.05-.5.05-1 0-1.5l1.9-1.3-2-3.5-2.2.7c-.4-.3-.9-.6-1.3-.8L15.4 5h-4l-.4 2.1c-.5.2-.9.5-1.3.8L7.5 7.2l-2 3.5 1.9 1.3c-.05.5-.05 1 0 1.5l-1.9 1.3 2 3.5 2.2-.7c.4.3.9.6 1.3.8L11.4 21h4l.4-2.1c.5-.2.9-.5 1.3-.8l2.2.7 2-3.5-1.9-1.3Z"/></svg>
+        Settings
+      </a></li>
+      <li><a href="../logout.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Logout
+      </a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="copyright">© 2026 BBMS. All rights reserved.</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="burger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <h1>Hospitals</h1>
+      <div class="topbar-right">
+        <a href="adnotification.html" class="bell-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="badge-dot" style="display:none;"></span>
+        </a>
+        <div class="profile">
+          <span class="avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          </span>
+          <span class="admin-name">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-head">
+        <div>
+          <h2>Hospitals</h2>
+          <p>Manage partner hospitals connected to BBMS</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Hospital
+        </button>
+      </div>
+
+      <div class="alert" id="alertBox"></div>
+
+      <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search by hospital name...">
+      </div>
+
+      <div class="table-card">
+        <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Hospital</th><th>Contact Person</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="itemModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add Hospital</h3>
+      <button class="modal-close" onclick="closeModal('itemModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="itemForm">
+      <input type="hidden" id="itemId">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Hospital Name</label>
+          <input type="text" id="f_name" required>
+        </div>
+        <div class="field full">
+          <label>Address</label>
+          <input type="text" id="f_address" required>
+        </div>
+        <div class="field">
+          <label>Contact Person</label>
+          <input type="text" id="f_contact">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" id="f_phone" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="f_email">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="f_status">
+            <option>Active</option><option>Inactive</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Hospital</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('itemModal')">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="design/site.js?v=2"></script>
+<script>
+  const API_URL = '../api/hospitals/hospitals.php';
+
+  let items = [];
+  const tbody = document.getElementById('tableBody');
+  const searchInput = document.getElementById('searchInput');
+  const itemForm = document.getElementById('itemForm');
+
+  //  Load hospitals from the API 
+  async function loadHospitals() {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Loading hospitals...</div></td></tr>';
+    try {
+      items = await readJson(await fetch(API_URL));
+      render();
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Could not load hospitals.</div></td></tr>';
+      showAlert('alertBox', err.message || 'Could not load hospitals.', 'error');
+    }
+  }
+
+  function render() {
+    const term = searchInput.value.trim().toLowerCase();
+    const filtered = items.filter(i => i.name.toLowerCase().includes(term));
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">No hospitals found.</div></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(i => `
+      <tr>
+        <td><strong>${escapeHtml(i.name)}</strong><br><span style="color:var(--text-light); font-size:12px;">${escapeHtml(i.address)}</span></td>
+        <td>${i.contact_person ? escapeHtml(i.contact_person) : '—'}</td>
+        <td>${escapeHtml(i.phone)}</td>
+        <td><span class="badge badge-${i.status.toLowerCase()}">${i.status}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn edit" onclick="openEditModal(${i.id})" title="Edit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </button>
+            <button class="icon-btn delete" onclick="deleteItem(${i.id})" title="Delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add Hospital';
+    itemForm.reset();
+    document.getElementById('itemId').value = '';
+    openModal('itemModal');
+  }
+
+  function openEditModal(id) {
+    const i = items.find(x => x.id === id);
+    if (!i) return;
+    document.getElementById('modalTitle').textContent = 'Edit Hospital';
+    document.getElementById('itemId').value = i.id;
+    document.getElementById('f_name').value = i.name || '';
+    document.getElementById('f_address').value = i.address || '';
+    document.getElementById('f_contact').value = i.contact_person || '';
+    document.getElementById('f_phone').value = i.phone || '';
+    document.getElementById('f_email').value = i.email || '';
+    document.getElementById('f_status').value = i.status || 'Active';
+    openModal('itemModal');
+  }
+
+  // Delete  API 
+  async function deleteItem(id) {
+    if (!confirmDelete('Delete this hospital? Related requests will also be affected.')) return;
+    try {
+      const res = await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      showAlert('alertBox', data.message || 'Hospital deleted.', 'success');
+      await loadHospitals();
+    } catch (err) {
+      showAlert('alertBox', err.message || 'Could not delete hospital.', 'error');
+    }
+  }
+
+  // Create / Update API 
+  itemForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const id = document.getElementById('itemId').value;
+    const record = {
+      name: document.getElementById('f_name').value,
+      address: document.getElementById('f_address').value,
+      contact_person: document.getElementById('f_contact').value,
+      phone: document.getElementById('f_phone').value,
+      email: document.getElementById('f_email').value,
+      status: document.getElementById('f_status').value
+    };
+
+    try {
+      const res = await fetch(id ? `${API_URL}?id=${id}` : API_URL, {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Save failed');
+      }
+      showAlert('alertBox', id ? 'Hospital updated successfully.' : 'Hospital added successfully.', 'success');
+      closeModal('itemModal');
+      await loadHospitals();
+    } catch (err) {
+      showAlert('alertBox', err.message || 'Could not save hospital.', 'error');
+    }
+  });
+
+  searchInput.addEventListener('input', render);
+
+  function initPage() {
+    loadHospitals();
+  }
+</script>
+</body>
+</html>

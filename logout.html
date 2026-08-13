@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Logging out...</title>
+</head>
+<body>
+<script>
+  localStorage.removeItem('bbms_user');
+  fetch('api/auth/logout.php')
+    .finally(() => {
+      window.location.href = 'before-login/hero-page.html';
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - BBMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=2">
+<style>
+  .close-btn{
+    position:fixed; top:24px; left:24px;
+    width:42px; height:42px; border-radius:50%;
+    background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-mid); box-shadow:0 4px 12px rgba(0,0,0,.06);
+    transition:background .15s, color .15s;
+    z-index:300;
+  }
+  .close-btn:hover{background:var(--red-50); color:var(--red-600);}
+  .close-btn svg{width:18px; height:18px;}
+</style>
+</head>
+<body style="background:#fdf6f6;">
+
+<a href="before-login\hero-page.html" class="close-btn" title="Back to Home">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+</a>
+
+<main style="padding:60px 20px; box-sizing:content-box;">
+  <form class="form-card" id="signupForm" novalidate style="width: 560px; max-width:100%; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:8px;">
+      <div class="logo-icon" style="margin:0 auto 14px;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-13-7-13Z" fill="#fff"/><path d="M9.5 15.5a2.5 2.5 0 0 0 2.5 2.5" stroke="#e0242f" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <h2 style="text-align:center;">Create Your Account</h2>
+    <p class="lead" style="text-align:center;">Sign up to register as a donor and track your activity.</p>
+
+    <div class="form-alert"></div>
+
+    <div class="form-grid">
+      <div class="field full">
+        <label>Full Name</label>
+        <input type="text" name="full_name" placeholder="e.g. Name Lastname" required>
+        <span class="error-msg">Full name is required.</span>
+      </div>
+      <div class="field full">
+        <label>Email <span class="opt">(Gmail, Outlook, Yahoo, iCloud…)</span></label>
+        <input type="email" name="email" placeholder="you@gmail.com" required>
+        <span class="error-msg">Email is required.</span>
+      </div>
+      <div class="field full">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" placeholder="98XXXXXXXX" required>
+        <span class="error-msg">Phone number is required.</span>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+        <span class="error-msg">Password is required.</span>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="••••••••" required>
+        <span class="error-msg">Please confirm your password.</span>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+    </div>
+
+    <p style="text-align:center; font-size:13px; color:var(--text-mid); margin-top:20px;">
+      Already have an account? <a href="login.html" style="color:var(--red-600); font-weight:600;">Log in</a>
+    </p>
+  </form>
+</main>
+
+<footer class="site-footer">
+  © 2026 BBMS. All rights reserved. &nbsp;|&nbsp; Emergency Helpline: 01-1234567 / 9800000000
+</footer>
+
+<script src="assets/site.js?v=2"></script>
+<script>
+  const signupForm = document.getElementById('signupForm');
+  const alertBox = signupForm.querySelector('.form-alert');
+  const password = signupForm.querySelector('[name=password]');
+  const confirmPassword = signupForm.querySelector('[name=confirm_password]');
+
+  signupForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    signupForm.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+
+    let valid = true;
+    signupForm.querySelectorAll('[required]').forEach(input => {
+      const field = input.closest('.field');
+      if (!input.value || (input.type === 'checkbox' && !input.checked)) {
+        valid = false;
+        if (field) field.classList.add('has-error');
+      }
+    });
+
+    if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
+      valid = false;
+      const confirmField = confirmPassword.closest('.field');
+      confirmField.classList.add('has-error');
+      confirmField.querySelector('.error-msg').textContent = 'Passwords do not match.';
+    }
+
+    if (!valid) {
+      alertBox.textContent = 'Please fix the errors below.';
+      alertBox.className = 'form-alert error show';
+      return;
+    }
+
+    const btn = signupForm.querySelector('button[type=submit]');
+    const data = {
+      full_name: signupForm.querySelector('[name=full_name]').value,
+      email:     signupForm.querySelector('[name=email]').value,
+      phone:     signupForm.querySelector('[name=phone]').value,
+      password:  password.value
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Please wait...';
+
+    fetch('api/auth/signup.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.error) {
+        alertBox.textContent = res.error;
+        alertBox.className = 'form-alert error show';
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+      alertBox.textContent = 'Account created! Redirecting...';
+      alertBox.className = 'form-alert success show';
+      localStorage.setItem('bbms_user', JSON.stringify(res.user));
+      setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+    })
+    .catch(() => {
+      alertBox.textContent = 'Something went wrong. Try again.';
+      alertBox.className = 'form-alert error show';
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    });
+  });
+</script>
+</body>
+</html>

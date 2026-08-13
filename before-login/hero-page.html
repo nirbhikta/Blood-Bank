@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us - BBMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style2.css?v=2">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="hero-page.html" class="brand-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-13-7-13Z" fill="#fff"/><path d="M9.5 15.5a2.5 2.5 0 0 0 2.5 2.5" stroke="#e0242f" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand">BBMS</div>
+        <div class="sub">Blood Bank Management System</div>
+      </div>
+    </a>
+    <nav class="site-nav">
+      <div class="nav-links">
+        <a href="hero-page.html">Home</a>
+        <a href="../login.html">Find a Hospital</a>
+        <a href="aboutus.html">About</a>
+      </div>
+    </nav>
+      <a href="../login.html" class="btn-outline">Log In</a>
+      <button class="menu-toggle" id="menuToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="hero-page.html">Home</a>
+    <a href="../login.html">Find a Hospital</a>
+    <a href="aboutus.html">About</a>
+    <a href="../login.html">Log In</a>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="page-hero" style="text-align:left; padding:56px 28px;">
+  <div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:30px; flex-wrap:wrap; padding:0;">
+    <div style="max-width:520px;">
+      <h1 style="font-size:34px;">Every Drop Counts,<br><span>Save Lives</span></h1>
+      <p style="font-size:15px; margin:14px 0 26px;">Join thousands of donors across the country. Register today and help us keep hospitals stocked for emergencies.</p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="../login.html" class="btn btn-primary">Donate Blood</a>
+        <a href="../login.html" class="btn btn-secondary">Request Blood</a>
+      </div>
+    </div>
+    <div style="width:260px; height:190px; flex-shrink:0;">
+      <svg viewBox="0 0 260 190" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <polyline points="0,100 55,100 68,70 82,130 96,50 110,100 260,100" fill="none" stroke="#f3b8ba" stroke-width="2.5"/>
+        <path d="M130 40 C130 40 95 80 95 110 a35 35 0 0 0 70 0 C165 80 130 40 130 40 Z" fill="#e0242f"/>
+        <rect x="118" y="82" width="24" height="24" rx="4" fill="#fff"/>
+        <rect x="126" y="74" width="8" height="40" rx="2" fill="#e0242f"/>
+        <rect x="102" y="98" width="56" height="8" rx="2" fill="#e0242f"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Stats strip ===== -->
+<section class="section" style="padding-top:40px; padding-bottom:20px;">
+  <div class="container" style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+    <div class="card" style="padding:22px; text-align:center;">
+      <div style="font-size:24px; font-weight:800; color:var(--red-600);" id="statDonors">—</div>
+      <div style="font-size:12.5px; color:var(--text-mid); margin-top:4px;">Registered Donors</div>
+    </div>
+    <div class="card" style="padding:22px; text-align:center;">
+      <div style="font-size:24px; font-weight:800; color:var(--red-600);" id="statUnits">—</div>
+      <div style="font-size:12.5px; color:var(--text-mid); margin-top:4px;">Units Available</div>
+    </div>
+    <div class="card" style="padding:22px; text-align:center;">
+      <div style="font-size:24px; font-weight:800; color:var(--red-600);" id="statHospitals">—</div>
+      <div style="font-size:12.5px; color:var(--text-mid); margin-top:4px;">Partner Hospitals</div>
+    </div>
+    <div class="card" style="padding:22px; text-align:center;">
+      <div style="font-size:24px; font-weight:800; color:var(--red-600);" id="statFulfilled">—</div>
+      <div style="font-size:12.5px; color:var(--text-mid); margin-top:4px;">Requests Fulfilled</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== How it works ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Donating blood is simple</h2>
+      <p>Three easy steps to becoming a life-saving donor.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+      <div class="card" style="padding:28px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--red-50);color:var(--red-600);display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:14px;">1</div>
+        <h3 style="font-size:16px; margin-bottom:8px;">Register</h3>
+        <p style="font-size:13px; color:var(--text-mid); line-height:1.6;">Fill out the donor registration form with your basic and health details.</p>
+      </div>
+      <div class="card" style="padding:28px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--red-50);color:var(--red-600);display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:14px;">2</div>
+        <h3 style="font-size:16px; margin-bottom:8px;">Get Screened</h3>
+        <p style="font-size:13px; color:var(--text-mid); line-height:1.6;">Our medical team confirms your eligibility with a quick health check.</p>
+      </div>
+      <div class="card" style="padding:28px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--red-50);color:var(--red-600);display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:14px;">3</div>
+        <h3 style="font-size:16px; margin-bottom:8px;">Donate &amp; Save Lives</h3>
+        <p style="font-size:13px; color:var(--text-mid); line-height:1.6;">The donation takes about 10 minutes and can save up to three lives.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div style="background:var(--text-dark); border-radius:20px; padding:44px 40px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+      <div>
+        <h2 style="color:#fff; font-size:22px; margin-bottom:8px;">Ready to make a difference?</h2>
+        <p style="color:#c8ccd3; font-size:13.5px;">Your donation could be the reason someone gets to go home today.</p>
+      </div>
+      <a href="../login.html" class="btn btn-primary">Become a Donor</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer-rich">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>BBMS</h4>
+        <p>A centralized platform connecting donors, hospitals, and patients to make blood donation faster and more reliable.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="hero-page.html">Home</a></li>
+          <li><a href="../login.html">Donate Blood</a></li>
+          <li><a href="../login.html">Request Blood</a></li>
+          <li><a href="../login.html">Find a Hospital</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="aboutus.html">About Us</a></li>
+          <li><a href="../login.html">Log In</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>01-1234567</li>
+          <li>9800000000</li>
+          <li>help@bbms.org</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 BBMS. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="design.js?v=2"></script>
+<script>
+  fetch('../api/stats/public.php')
+    .then(r => r.json())
+    .then(s => {
+      document.getElementById('statDonors').textContent = s.donors.toLocaleString();
+      document.getElementById('statUnits').textContent = s.units.toLocaleString();
+      document.getElementById('statHospitals').textContent = s.hospitals.toLocaleString();
+      document.getElementById('statFulfilled').textContent = s.fulfilled.toLocaleString();
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBMS - Blood Bank Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red-600:#e0242f;
+    --red-700:#c81e28;
+    --red-50:#fdecec;
+    --red-100:#fbd9da;
+    --pink-bg:#fdeeee;
+    --text-dark:#1f2430;
+    --text-mid:#6b7280;
+    --text-light:#9aa1ac;
+    --green:#16a34a;
+    --border:#eef0f2;
+    --sidebar-w:250px;
+    --header-h:70px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Poppins', sans-serif;
+    background:#f6f7f9;
+    color:var(--text-dark);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+
+  /* ===== Layout shell ===== */
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    width:var(--sidebar-w);
+    background:#fff;
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    z-index:100;
+    transition:transform .25s ease;
+  }
+  .sidebar-logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:24px 22px 18px;
+  }
+  .logo-icon{
+    width:40px; height:40px;
+    background:var(--red-600);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .logo-icon svg{width:22px; height:22px;}
+  .logo-text .brand{
+    font-weight:800;
+    font-size:19px;
+    color:var(--red-600);
+    letter-spacing:.5px;
+    line-height:1.1;
+  }
+  .logo-text .sub{
+    font-size:10px;
+    color:var(--text-light);
+    letter-spacing:.2px;
+  }
+
+  .nav-list{
+    padding:10px 14px;
+    flex:1;
+    overflow-y:auto;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 14px;
+    border-radius:10px;
+    color:var(--text-mid);
+    font-size:14.5px;
+    font-weight:500;
+    margin-bottom:4px;
+    transition:background .15s, color .15s;
+  }
+  .nav-item svg{width:18px; height:18px; flex-shrink:0;}
+  .nav-item:hover{background:var(--red-50); color:var(--red-600);}
+  .nav-item.active{
+    background:var(--red-600);
+    color:#fff;
+    box-shadow:0 4px 10px rgba(224,36,47,.25);
+  }
+
+  .sidebar-footer{
+    padding:16px 22px 22px;
+    border-top:1px solid var(--border);
+  }
+  .copyright{
+    font-size:11px;
+    color:var(--text-light);
+    margin-bottom:6px;
+  }
+  .helpline{
+    font-size:11px;
+    color:var(--text-mid);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  /* ===== Main column ===== */
+  .main{
+    margin-left:var(--sidebar-w);
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+
+  /* ===== Top header ===== */
+  .topbar{
+    height:var(--header-h);
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .burger{
+    display:flex;
+    background:none;
+    padding:6px;
+    color:var(--text-dark);
+  }
+  .burger svg{width:22px; height:22px;}
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    margin-left:auto;
+  }
+  .bell-wrap{position:relative; display:flex;}
+  .bell-wrap svg{width:21px; height:21px; color:var(--text-dark);}
+  .badge{
+    position:absolute;
+    top:-6px; right:-6px;
+    background:var(--red-600);
+    color:#fff;
+    font-size:9px;
+    font-weight:700;
+    width:16px; height:16px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .profile{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text-dark);
+    font-size:14px;
+    font-weight:500;
+  }
+  .avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:#e5e7eb;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-mid);
+  }
+  .avatar svg{width:16px;height:16px;}
+  .profile svg.chev{width:14px; height:14px; color:var(--text-mid);}
+
+  /* ===== Content area ===== */
+  .content{
+    padding:26px 28px 40px;
+    flex:1;
+  }
+
+  /* ===== Hero banner ===== */
+  .hero{
+    background:linear-gradient(120deg, #fdeeee 0%, #fdf4f2 60%, #fdeeee 100%);
+    border-radius:18px;
+    padding:34px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:30px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .hero-text h1{
+    font-size:27px;
+    font-weight:700;
+    line-height:1.3;
+    color:var(--text-dark);
+  }
+  .hero-text h1 span{color:var(--red-600);}
+  .hero-text p{
+    margin:10px 0 18px;
+    color:var(--text-mid);
+    font-size:14px;
+  }
+  .btn-donate{
+    background:var(--red-600);
+    color:#fff;
+    font-weight:600;
+    font-size:14px;
+    padding:12px 26px;
+    border-radius:9px;
+    box-shadow:0 6px 16px rgba(224,36,47,.3);
+  }
+  .btn-donate:hover{background:var(--red-700);}
+  .hero-art{
+    position:relative;
+    width:230px;
+    height:150px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .hero-art svg{width:100%; height:100%;}
+
+  /* ===== Stat cards ===== */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:18px;
+  }
+  .stat-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    transition:box-shadow .15s, transform .15s;
+  }
+  .stat-card:hover{box-shadow:0 8px 20px rgba(0,0,0,.06); transform:translateY(-2px);}
+  .stat-icon{
+    width:46px; height:46px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    background:var(--red-50);
+    color:var(--red-600);
+  }
+  .stat-icon svg{width:22px; height:22px;}
+  .stat-label{
+    font-size:12.5px;
+    color:var(--text-mid);
+    margin-bottom:4px;
+  }
+  .stat-value{
+    font-size:21px;
+    font-weight:700;
+    color:var(--text-dark);
+    margin-bottom:4px;
+  }
+  .stat-delta{
+    font-size:11.5px;
+    color:var(--green);
+    font-weight:600;
+  }
+
+  /* ===== Mobile-only elements ===== */
+  .mobile-header, .bottom-nav{display:none;}
+
+  /* ===================================================== */
+  /* Responsive: tablet */
+  /* ===================================================== */
+  @media (max-width: 1024px){
+    .stats-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+
+  
+  /* Responsive: mobile - reshape into phone-app layout    */
+  /* ===================================================== */
+  @media (max-width: 720px){
+    .sidebar{
+      transform:translateX(-100%);
+    }
+    .sidebar.open{transform:translateX(0);}
+    .main{margin-left:0;}
+
+    .topbar{display:none;}
+
+    .mobile-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:#fff;
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:50;
+    }
+    .mobile-header .left, .mobile-header .right{
+      display:flex; align-items:center; gap:12px;
+    }
+    .mobile-header .brand{
+      font-weight:800;
+      color:var(--red-600);
+      font-size:17px;
+    }
+    .mobile-header svg{width:20px;height:20px; color:var(--text-dark);}
+
+    .content{padding:16px 16px 90px;}
+
+    .hero{
+      flex-direction:column;
+      align-items:flex-start;
+      padding:22px 22px 18px;
+      border-radius:16px;
+    }
+    .hero-text h1{font-size:20px;}
+    .hero-text p{font-size:12.5px; margin:8px 0 14px;}
+    .btn-donate{padding:10px 20px; font-size:13px;}
+    .hero-art{
+      width:100%;
+      height:110px;
+      margin-top:14px;
+      align-self:center;
+    }
+
+    .stats-grid{
+      grid-template-columns:repeat(2, 1fr);
+      gap:12px;
+    }
+    .stat-card{padding:14px; border-radius:12px; gap:10px;}
+    .stat-icon{width:38px; height:38px; border-radius:10px;}
+    .stat-icon svg{width:18px; height:18px;}
+    .stat-value{font-size:17px;}
+    .stat-label{font-size:11px;}
+    .stat-delta{font-size:10.5px;}
+
+    .bottom-nav{
+      display:flex;
+      position:fixed;
+      bottom:0; left:0; right:0;
+      background:#fff;
+      border-top:1px solid var(--border);
+      padding:8px 4px 10px;
+      z-index:100;
+      box-shadow:0 -4px 14px rgba(0,0,0,.05);
+    }
+    .bottom-nav a{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      color:var(--text-light);
+      font-size:10.5px;
+      font-weight:500;
+    }
+    .bottom-nav a svg{width:20px; height:20px;}
+    .bottom-nav a.active{color:var(--red-600);}
+
+    .sidebar-overlay{
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.4);
+      z-index:90;
+    }
+    .sidebar-overlay.show{display:block;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- overlay for mobile sidebar -->
+  <div class="sidebar-overlay" id="overlay"></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-13-7-13Z" fill="#fff"/><path d="M9.5 15.5a2.5 2.5 0 0 0 2.5 2.5" stroke="#e0242f" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="logo-text">
+        <div class="brand">BBMS</div>
+        <div class="sub">Blood Bank Management System</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li><a href="dashboard.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="donors.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.7.2 4.7 2.4 4.7 5.3"/></svg>
+        Donors
+      </a></li>
+      <li><a href="blood-inventory.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3Z"/></svg>
+        Blood Inventory
+      </a></li>
+      <li><a href="blood-requests.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2.5v3M16 2.5v3M4 9.5h16"/></svg>
+        Blood Requests
+      </a></li>
+      <li><a href="hospitals.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16"/></svg>
+        Hospitals
+      </a></li>
+      <li><a href="reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="3.5" height="10"/><rect x="10.3" y="6" width="3.5" height="14"/><rect x="16.5" y="3" width="3.5" height="17"/></svg>
+        Reports
+      </a></li>
+      <li><a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5c.05-.5.05-1 0-1.5l1.9-1.3-2-3.5-2.2.7c-.4-.3-.9-.6-1.3-.8L15.4 5h-4l-.4 2.1c-.5.2-.9.5-1.3.8L7.5 7.2l-2 3.5 1.9 1.3c-.05.5-.05 1 0 1.5l-1.9 1.3 2 3.5 2.2-.7c.4.3.9.6 1.3.8L11.4 21h4l.4-2.1c.5-.2.9-.5 1.3-.8l2.2.7 2-3.5-1.9-1.3Z"/></svg>
+        Settings
+      </a></li>
+      <li><a href="../logout.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Logout
+      </a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="copyright">© 2026 BBMS. All rights reserved.</div>
+      <div class="helpline">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2Z"/></svg>
+        Emergency Helpline: 01-1234567 / 9800000000
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <div class="main">
+
+    <!-- Desktop topbar -->
+    <header class="topbar">
+      <button class="burger" id="burgerBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-right">
+        <div class="bell-wrap"><a href="adnotification.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="badge-dot" style="display:none;"></span>
+          </a></div>
+        <div class="profile">
+          <span class="avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          </span>
+          <span class="admin-name">Admin</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <div class="left">
+        <button class="burger" id="burgerBtnMobile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <span class="brand">BBMS</span>
+      </div>
+      <div class="right">
+        <a href="adnotification.html" class="bell-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="badge-dot" style="display:none;"></span>
+        </a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Every Drop Counts,<br><span>Save Lives</span></h1>
+          <p>Together, we can save more lives.</p>
+          <a href="../donate-blood.html"><button class="btn-donate">Donate Blood</button></a>
+        </div>
+        <div class="hero-art">
+          <svg viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="0,90 55,90 68,60 82,120 96,40 110,90 260,90" fill="none" stroke="#f3b8ba" stroke-width="2.5"/>
+            <path d="M130 30 C130 30 95 70 95 100 a35 35 0 0 0 70 0 C165 70 130 30 130 30 Z" fill="#e0242f"/>
+            <rect x="118" y="72" width="24" height="24" rx="4" fill="#fff"/>
+            <rect x="126" y="64" width="8" height="40" rx="2" fill="#e0242f"/>
+            <rect x="102" y="88" width="56" height="8" rx="2" fill="#e0242f"/>
+            <path d="M70 150c10-18 30-22 45-14 8-14 26-16 38-6 10 8 10 22 0 22H75c-6 0-9-1-5-2Z" fill="#f6c9cb" opacity=".8"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.7.2 4.7 2.4 4.7 5.3"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Total Donors</div>
+            <div class="stat-value" id="statDonors">—</div>
+            <div class="stat-delta" id="statDonorsDelta">—</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3Z"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Blood Units Available</div>
+            <div class="stat-value" id="statUnits">—</div>
+            <div class="stat-delta">in stock</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Hospitals Connected</div>
+            <div class="stat-value" id="statHospitals">—</div>
+            <div class="stat-delta" id="statHospitalsDelta">—</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2.5v3M16 2.5v3M4 9.5h16"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value" id="statRequests">—</div>
+            <div class="stat-delta" id="statRequestsDelta">—</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    Home
+  </a>
+  <a href="donors.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.7.2 4.7 2.4 4.7 5.3"/></svg>
+    Donors
+  </a>
+  <a href="blood-inventory.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3Z"/></svg>
+    Inventory
+  </a>
+  <a href="blood-requests.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2.5v3M16 2.5v3M4 9.5h16"/></svg>
+    Requests
+  </a>
+  <a href="settings.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    Profile
+  </a>
+</nav>
+
+<script src="design/site.js?v=2"></script>
+<script>
+  function initPage() {
+  fetch('../api/admin/stats.php')
+    .then(readJson)
+    .then(s => {
+      document.getElementById('statDonors').textContent = Number(s.total_donors).toLocaleString();
+      document.getElementById('statDonorsDelta').textContent = '+' + s.donors_this_month + ' this month';
+      document.getElementById('statUnits').textContent = Number(s.total_units).toLocaleString();
+      document.getElementById('statHospitals').textContent = Number(s.hospitals).toLocaleString();
+      document.getElementById('statHospitalsDelta').textContent = '+' + s.hospitals_this_month + ' this month';
+      document.getElementById('statRequests').textContent = Number(s.total_requests).toLocaleString();
+      document.getElementById('statRequestsDelta').textContent = '+' + s.requests_this_month + ' this month';
+    })
+    .catch(() => {});
+  }
+</script>
+
+</body>
+</html>

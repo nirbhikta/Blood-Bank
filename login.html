@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In - BBMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=2">
+<style>
+  .close-btn{
+    position:fixed; top:24px; left:24px;
+    width:42px; height:42px; border-radius:50%;
+    background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-mid); box-shadow:0 4px 12px rgba(0,0,0,.06);
+    transition:background .15s, color .15s;
+    z-index:300;
+  }
+  .close-btn:hover{background:var(--red-50); color:var(--red-600);}
+  .close-btn svg{width:18px; height:18px;}
+</style>
+</head>
+<body style="background:#fdf6f6;">
+
+<a href="before-login/hero-page.html" class="close-btn" title="Back to Home">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+</a>
+
+<main style="display:flex; align-items:center; justify-content:center; padding:60px 20px;">
+  <form class="form-card" id="loginForm" novalidate style="width:100%; max-width:420px;">
+    <div style="text-align:center; margin-bottom:8px;">
+      <div class="logo-icon" style="margin:0 auto 14px;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-7-13-7-13Z" fill="#fff"/><path d="M9.5 15.5a2.5 2.5 0 0 0 2.5 2.5" stroke="#e0242f" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <h2 style="text-align:center;">Welcome Back</h2>
+    <p class="lead" style="text-align:center;">Log in to manage your donor profile and requests.</p>
+
+    <div class="form-alert" id="formAlert"></div>
+
+    <div class="form-grid">
+      <div class="field full">
+        <label>Email or Phone</label>
+        <input type="text" name="identifier" placeholder="you@example.com" required>
+        <span class="error-msg">This field is required.</span>
+      </div>
+      <div class="field full">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+        <span class="error-msg">Password is required.</span>
+      </div>
+      <div class="field full" style="flex-direction:row; align-items:center; justify-content:space-between;">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Log In</button>
+    </div>
+
+    <p style="text-align:center; font-size:13px; color:var(--text-mid); margin-top:20px;">
+      Don't have an account? <a href="signup.html" style="color:var(--red-600); font-weight:600;">Sign up</a>
+    </p>
+  </form>
+</main>
+
+<footer class="site-footer">
+  © 2026 BBMS. All rights reserved. &nbsp;|&nbsp; Emergency Helpline: 01-1234567 / 9800000000
+</footer>
+
+<script src="assets/site.js?v=2"></script>
+<script>
+// Already signed in? Skip the form.
+fetch('api/auth/me.php')
+  .then(r => r.status === 401 ? null : r.json())
+  .then(user => {
+    if (user && !user.error) {
+      window.location.href = user.role === 'admin' ? 'admin/dashboard.html' : 'index.html';
+    }
+  })
+  .catch(() => {});
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const alertBox = document.getElementById('formAlert');
+  const btn = this.querySelector('button[type=submit]');
+
+  const data = {
+    identifier: this.querySelector('[name=identifier]').value,
+    password:   this.querySelector('[name=password]').value
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Please wait...';
+
+  fetch('api/auth/login.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.error) {
+      alertBox.textContent = res.error;
+      alertBox.className = 'form-alert error show';
+      btn.disabled = false;
+      btn.textContent = 'Log In';
+      return;
+    }
+    localStorage.setItem('bbms_user', JSON.stringify(res.user));
+    window.location.href = res.user.role === 'admin'
+      ? 'admin/dashboard.html'
+      : 'index.html';
+  })
+  .catch(() => {
+    alertBox.textContent = 'Something went wrong. Try again.';
+    alertBox.className = 'form-alert error show';
+    btn.disabled = false;
+    btn.textContent = 'Log In';
+  });
+});
+</script>
+</body>
+</html>
