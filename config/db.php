@@ -102,7 +102,16 @@ function warnIfLowStock($pdo, $group) {
     );
 }
 
-function notify($pdo, $userId, $type, $title, $message, $pref = null) {
+/**
+ * $meta is an optional associative array stored as JSON in notifications.meta.
+ * The frontend renders it as structured UI instead of parsing $message.
+ *
+ * $audience decides which inbox the row lands in: 'user' for anything personal
+ * (shown on notification.html) and 'admin' for operational alerts (shown on
+ * admin/adnotification.html). Without it, an admin who is also a donor would
+ * see their own approval message in the admin console.
+ */
+function notify($pdo, $userId, $type, $title, $message, $pref = null, $meta = null, $audience = 'user') {
     if (!$userId) return;
 
     if ($pref) {
@@ -111,13 +120,23 @@ function notify($pdo, $userId, $type, $title, $message, $pref = null) {
         if (!$stmt->fetchColumn()) return;
     }
 
-    $stmt = $pdo->prepare('INSERT INTO notifications (user_id, type, title, message) VALUES (?,?,?,?)');
-    $stmt->execute([$userId, $type, $title, $message]);
+    $stmt = $pdo->prepare('
+        INSERT INTO notifications (user_id, audience, type, title, message, meta)
+        VALUES (?,?,?,?,?,?)
+    ');
+    $stmt->execute([
+        $userId,
+        in_array($audience, ['user', 'admin'], true) ? $audience : 'user',
+        $type,
+        $title,
+        $message,
+        $meta === null ? null : json_encode($meta),
+    ]);
 }
 
-function notifyAdmins($pdo, $type, $title, $message, $pref = null) {
+function notifyAdmins($pdo, $type, $title, $message, $pref = null, $meta = null) {
     $ids = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll(PDO::FETCH_COLUMN);
     foreach ($ids as $id) {
-        notify($pdo, $id, $type, $title, $message, $pref);
+        notify($pdo, $id, $type, $title, $message, $pref, $meta, 'admin');
     }
 }

@@ -24,6 +24,60 @@
   .notif-desc{font-size:12.5px; color:var(--text-mid); line-height:1.5;}
   .notif-time{font-size:11.5px; color:var(--text-light); margin-top:6px;}
   .notif-dot{width:8px; height:8px; border-radius:50%; background:var(--red-600); flex-shrink:0; margin-top:6px;}
+  .empty-state{padding:60px 20px; text-align:center; color:var(--text-light); font-size:13.5px;}
+
+  /* Rows that open the eligibility review modal advertise themselves as clickable. */
+  .notif-item.actionable{cursor:pointer;}
+  .notif-item.actionable:hover{background:#fdf6f6;}
+  .notif-cta{
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:9px; padding:5px 11px;
+    border-radius:7px; border:1.5px solid var(--red-100);
+    background:var(--red-50); color:var(--red-600);
+    font-size:11.5px; font-weight:700;
+  }
+  .notif-cta svg{width:12px; height:12px;}
+
+  /* ---- Chronic disease review modal ---- */
+  .review-donor{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px; border-radius:11px;
+    background:#fbfbfc; border:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .review-donor .bg-chip{
+    width:42px; height:42px; border-radius:10px; flex-shrink:0;
+    background:var(--red-50); color:var(--red-600);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800;
+  }
+  .review-donor .who{font-size:14px; font-weight:700;}
+  .review-donor .sub{font-size:11.5px; color:var(--text-light); margin-top:2px;}
+
+  .review-list{display:grid; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:11px; overflow:hidden;}
+  .review-row{display:grid; grid-template-columns:150px 1fr; gap:14px; background:#fff; padding:12px 16px;}
+  .review-row dt{font-size:12px; font-weight:600; color:var(--text-mid);}
+  .review-row dd{font-size:13px; color:var(--text-dark); word-break:break-word;}
+  @media (max-width:520px){
+    .review-row{grid-template-columns:1fr; gap:4px;}
+  }
+
+  .review-appointment{
+    margin-top:18px; padding:16px;
+    border:1.5px dashed var(--red-100); border-radius:11px; background:#fffafa;
+  }
+  .review-appointment .hint{font-size:11.5px; color:var(--text-mid); margin-bottom:12px; line-height:1.5;}
+  .review-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:20px; flex-wrap:wrap;}
+  .btn-eligible{background:var(--green); color:#fff; box-shadow:0 6px 14px rgba(22,163,74,.22);}
+  .btn-eligible:hover{background:#128040;}
+  .btn-ineligible{background:#fff; color:var(--red-600); border:1.5px solid var(--red-600);}
+  .btn-ineligible:hover{background:var(--red-50);}
+  .review-decided{
+    font-size:12.5px; font-weight:600; padding:11px 14px;
+    border-radius:9px; margin-top:16px;
+  }
+  .review-decided.eligible{background:#eafaf0; color:var(--green); border:1px solid #c7f0d8;}
+  .review-decided.ineligible{background:var(--red-50); color:var(--red-600); border:1px solid var(--red-100);}
 </style>
 </head>
 <body>
@@ -87,7 +141,7 @@
       </button>
       <h1>Notifications</h1>
       <div class="topbar-right">
-        <a href="adnotification.html" class="bell-wrap">
+        <a href="adnotification.html" class="bell-wrap" style="position:relative; display:inline-flex;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           <span class="badge-dot" id="bellCount" style="display:none;"></span>
         </a>
@@ -124,6 +178,21 @@
   </div>
 </div>
 
+<!-- ===== Chronic disease eligibility review ===== -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Eligibility Review</h3>
+      <button class="modal-close" onclick="closeModal('reviewModal')" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="alert" id="reviewAlert"></div>
+    <div id="reviewBody"></div>
+  </div>
+</div>
+
 <script src="design/site.js?v=2"></script>
 <script>
   let notifications = [];
@@ -135,7 +204,7 @@
   let currentFilter = 'all';
 
   function loadNotifications() {
-    fetch('../api/notifications/notifications.php')
+    fetch('../api/notifications/notifications.php?audience=admin')
       .then(readJson)
       .then(data => {
         notifications = Array.isArray(data) ? data : [];
@@ -163,23 +232,178 @@
       return;
     }
 
-    list.innerHTML = filtered.map(n => `
-      <div class="notif-item ${n.is_read == 0 ? 'unread' : ''}" onclick="markRead(${n.id})">
-        <div class="notif-icon ${n.type}">${icons[n.type]}</div>
+    list.innerHTML = filtered.map(n => {
+      const review = isChronicReview(n);
+      return `
+      <div class="notif-item ${n.is_read == 0 ? 'unread' : ''} ${review ? 'actionable' : ''}"
+           onclick="onNotifClick(${n.id})">
+        <div class="notif-icon ${n.type}">${icons[n.type] || 'i'}</div>
         <div class="notif-body">
           <div class="notif-title">${escapeHtml(n.title)}</div>
           <div class="notif-desc">${escapeHtml(n.message)}</div>
+          ${review ? `
+          <span class="notif-cta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Review details
+          </span>` : ''}
           <div class="notif-time">${timeAgo(n.created_at)}</div>
         </div>
         ${n.is_read == 0 ? '<div class="notif-dot"></div>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ===== Chronic disease eligibility review =====
+
+  // notifications.meta arrives as a JSON string; decode it once per row and cache it.
+  function metaOf(n) {
+    if (n._meta === undefined) {
+      try { n._meta = n.meta ? JSON.parse(n.meta) : null; }
+      catch (e) { n._meta = null; }
+    }
+    return n._meta;
+  }
+
+  function isChronicReview(n) {
+    const m = metaOf(n);
+    return !!(m && m.kind === 'chronic_review' && m.donation_id);
+  }
+
+  function onNotifClick(id) {
+    markRead(id);
+    const n = notifications.find(x => x.id == id);
+    if (n && isChronicReview(n)) openReview(n);
+  }
+
+  let hospitalCache = null;
+
+  function loadHospitals() {
+    if (hospitalCache) return Promise.resolve(hospitalCache);
+    return fetch('../api/hospitals/hospitals.php')
+      .then(readJson)
+      .then(list => (hospitalCache = Array.isArray(list) ? list : []))
+      .catch(() => (hospitalCache = []));
+  }
+
+  function reviewRow(label, value) {
+    return `<div class="review-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value || '\u2014')}</dd></div>`;
+  }
+
+  function openReview(n) {
+    const m = metaOf(n);
+    const alertBox = document.getElementById('reviewAlert');
+    alertBox.className = 'alert';
+    alertBox.textContent = '';
+
+    const today   = new Date().toISOString().slice(0, 10);
+    // Default the appointment to a week out at 10:00; the admin can change both.
+    const inAWeek = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+
+    document.getElementById('reviewBody').innerHTML = `
+      <div class="review-donor">
+        <span class="bg-chip">${escapeHtml(m.blood_group || '?')}</span>
+        <div>
+          <div class="who">${escapeHtml(m.donor_name || 'Donor')}</div>
+          <div class="sub">Registration #${escapeHtml(String(m.donation_id))} &middot; reported ${timeAgo(n.created_at).toLowerCase()}</div>
+        </div>
       </div>
-    `).join('');
+
+      <dl class="review-list">
+        ${reviewRow('Disease name', m.disease)}
+        ${reviewRow('Duration', m.duration)}
+        ${reviewRow('On medication', m.on_medication ? 'Yes' : 'No')}
+        ${m.on_medication ? reviewRow('Medication name', m.medication) : ''}
+        ${reviewRow('Additional notes', m.notes)}
+      </dl>
+
+      <div class="review-appointment">
+        <div class="hint">
+          Marking this donor eligible confirms a donation appointment and sends them
+          the hospital, date and time.
+        </div>
+        <div class="form-grid">
+          <div class="field full">
+            <label>Hospital</label>
+            <select id="rvHospital"><option value="">Keep the hospital the donor chose</option></select>
+          </div>
+          <div class="field">
+            <label>Appointment date</label>
+            <input type="date" id="rvDate" value="${inAWeek}" min="${today}">
+          </div>
+          <div class="field">
+            <label>Appointment time</label>
+            <input type="time" id="rvTime" value="10:00">
+          </div>
+        </div>
+      </div>
+
+      <div class="review-actions">
+        <button class="btn btn-ineligible" id="rvNo" onclick="setEligibility(${m.donation_id}, 'ineligible')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Mark Ineligible
+        </button>
+        <button class="btn btn-eligible" id="rvYes" onclick="setEligibility(${m.donation_id}, 'eligible')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Mark Eligible
+        </button>
+      </div>
+    `;
+
+    loadHospitals().then(list => {
+      const sel = document.getElementById('rvHospital');
+      if (!sel) return;   // modal was re-rendered or closed before the list arrived
+      list.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h.id;
+        opt.textContent = h.address ? `${h.name} - ${h.address}` : h.name;
+        sel.appendChild(opt);
+      });
+    });
+
+    openModal('reviewModal');
+  }
+
+  function setEligibility(donationId, status) {
+    const alertBox = document.getElementById('reviewAlert');
+    const buttons  = ['rvYes', 'rvNo'].map(id => document.getElementById(id)).filter(Boolean);
+    buttons.forEach(b => b.disabled = true);
+
+    const body = {};
+    if (status === 'eligible') {
+      const hospital = document.getElementById('rvHospital').value;
+      if (hospital) body.hospital_id = hospital;
+      body.appointment_date = document.getElementById('rvDate').value;
+      body.appointment_time = document.getElementById('rvTime').value;
+    }
+
+    fetch(`../api/donors/donors.php?id=${donationId}&action=set_eligibility&status=${status}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then(readJson)
+      .then(res => {
+        alertBox.textContent = res.message || 'Eligibility updated.';
+        alertBox.className = 'alert show ' + (status === 'eligible' ? 'alert-success' : 'alert-error');
+        document.querySelector('#reviewBody .review-actions').innerHTML =
+          `<div class="review-decided ${status}" style="width:100%;">
+             ${status === 'eligible'
+               ? 'Donor marked eligible. The appointment details have been sent.'
+               : 'Donor marked ineligible. The donor has been notified.'}
+           </div>`;
+        loadNotifications();
+      })
+      .catch(err => {
+        alertBox.textContent = err.message || 'Could not update eligibility.';
+        alertBox.className = 'alert show alert-error';
+        buttons.forEach(b => b.disabled = false);
+      });
   }
 
   function markRead(id) {
     const n = notifications.find(x => x.id == id);
     if (!n || n.is_read == 1) return;
-    fetch('../api/notifications/notifications.php?id=' + id, { method: 'PUT' })
+    fetch('../api/notifications/notifications.php?audience=admin&id=' + id, { method: 'PUT' })
       .then(() => {
         n.is_read = 1;
         render();
@@ -188,7 +412,7 @@
   }
 
   function markAllRead() {
-    fetch('../api/notifications/notifications.php', { method: 'PUT' })
+    fetch('../api/notifications/notifications.php?audience=admin', { method: 'PUT' })
       .then(() => {
         notifications.forEach(n => n.is_read = 1);
         render();

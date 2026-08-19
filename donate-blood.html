@@ -232,6 +232,67 @@ img{max-width:100%; display:block;}
     color:#fff;
   }
 
+  /* ---- Yes/No pill toggles + chronic disease sub-form ---- */
+  .yn-group{display:flex; gap:10px;}
+  .yn-option input{display:none;}
+  .yn-option label{
+    display:block;
+    padding:9px 22px;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    background:#fff;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-mid);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .yn-option label:hover{border-color:var(--red-100);}
+  .yn-option input:checked + label{
+    background:var(--red-600);
+    border-color:var(--red-600);
+    color:#fff;
+  }
+  /* Collapsed by default; JS flips .open to slide it down. */
+  .conditional-block{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-rows:0fr;
+    opacity:0;
+    margin-top:0;
+    transition:grid-template-rows .32s ease, opacity .24s ease, margin-top .32s ease;
+  }
+  /* visibility (not just clipping) keeps collapsed inputs out of the tab order;
+     it flips instantly on open and only after the slide finishes on close. */
+  .conditional-block > .conditional-inner{
+    overflow:hidden;
+    visibility:hidden;
+    transition:visibility 0s linear .32s;
+  }
+  .conditional-block.open{grid-template-rows:1fr; opacity:1; margin-top:4px;}
+  .conditional-block.open > .conditional-inner{visibility:visible; transition-delay:0s;}
+  @media (prefers-reduced-motion:reduce){
+    .conditional-block, .conditional-block > .conditional-inner{transition:none;}
+  }
+  .conditional-card{
+    border:1.5px solid var(--red-100);
+    background:#fffafa;
+    border-radius:12px;
+    padding:18px 20px 20px;
+  }
+  .conditional-card .conditional-head{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; color:var(--red-600);
+    text-transform:uppercase; letter-spacing:.4px;
+    margin-bottom:14px;
+  }
+  .conditional-card .conditional-head svg{width:15px; height:15px; flex-shrink:0;}
+  .conditional-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;}
+  .conditional-grid .field.full{grid-column:1 / -1;}
+  @media (max-width:640px){
+    .conditional-grid{grid-template-columns:1fr;}
+  }
+
   .checkbox-row{
     display:flex;
     align-items:flex-start;
@@ -442,6 +503,17 @@ img{max-width:100%; display:block;}
 }
 .notif-trigger:hover{ background:var(--red-50); }
 .notif-trigger svg{ width:22px; height:22px; }
+.bell-badge{
+  position:absolute; top:4px; right:4px;
+  background:var(--red-600); color:#fff;
+  font-size:10px; font-weight:700;
+  min-width:17px; height:17px; padding:0 3px;
+  line-height:1;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:2px solid #fff;
+  pointer-events:none;
+}
 .notif-badge{
   position:absolute;
   top:4px; right:4px;
@@ -450,6 +522,40 @@ img{max-width:100%; display:block;}
   background:var(--red-600);
   border:2px solid #fff;
 }
+  /* ---- Validation states (assets/validate.js) ---- */
+  .field-error{
+    border-color:var(--red-600) !important;
+    background:var(--red-50) !important;
+  }
+  .field-success{
+    border-color:#16a34a !important;
+  }
+  .error-msg{
+    font-size:11.5px;
+    color:var(--red-600);
+    margin-top:4px;
+    display:none;
+  }
+  .error-msg.show{
+    display:block;
+  }
+  
+  /* Busy submit button */
+  .btn-spinner{
+    width:13px; height:13px;
+    border:2px solid currentColor;
+    border-right-color:transparent;
+    border-radius:50%;
+    display:inline-block;
+    margin-right:8px;
+    vertical-align:-2px;
+    animation:btn-spin .6s linear infinite;
+  }
+  @keyframes btn-spin{to{transform:rotate(360deg);}}
+  button.is-loading{opacity:.75; cursor:progress;}
+  @media (prefers-reduced-motion:reduce){
+    .btn-spinner{animation-duration:2s;}
+  }
 </style>
 </head>
 <body>
@@ -479,8 +585,8 @@ img{max-width:100%; display:block;}
 <div class="header-actions">
     <a href="notification.html" class="notif-trigger" aria-label="Notifications">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      
-    </a>
+        <span class="bell-badge" style="display:none;"></span>
+      </a>
     <div class="profile-menu">
       <button class="profile-trigger" id="profileTrigger">
         <span class="profile-avatar">
@@ -577,6 +683,7 @@ img{max-width:100%; display:block;}
 
       <div class="section-label">Blood Group</div>
       <div class="form-grid">
+        <div class="field full">
         <div class="blood-group-grid">
           <div class="bg-option"><input type="radio" name="blood_group" id="bg1" value="A+" required><label for="bg1">A+</label></div>
           <div class="bg-option"><input type="radio" name="blood_group" id="bg2" value="A-"><label for="bg2">A-</label></div>
@@ -586,6 +693,8 @@ img{max-width:100%; display:block;}
           <div class="bg-option"><input type="radio" name="blood_group" id="bg6" value="O-"><label for="bg6">O-</label></div>
           <div class="bg-option"><input type="radio" name="blood_group" id="bg7" value="AB+"><label for="bg7">AB+</label></div>
           <div class="bg-option"><input type="radio" name="blood_group" id="bg8" value="AB-"><label for="bg8">AB-</label></div>
+        </div>
+        <span class="error-msg">Please select your blood group</span>
         </div>
         <div class="field full">
         <label>Hospital</label>
@@ -604,11 +713,67 @@ img{max-width:100%; display:block;}
         </div>
         <div class="field">
           <label>Any chronic illness?</label>
-          <select name="chronic_illness" required>
-            <option value="">Select an option</option>
-            <option>No</option>
-            <option>Yes</option>
-          </select>
+          <div class="yn-group" id="chronicToggle">
+            <div class="yn-option">
+              <input type="radio" name="chronic_illness" id="chronicNo" value="No" required>
+              <label for="chronicNo">No</label>
+            </div>
+            <div class="yn-option">
+              <input type="radio" name="chronic_illness" id="chronicYes" value="Yes">
+              <label for="chronicYes">Yes</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slides open only when "Yes" is selected. -->
+        <div class="conditional-block" id="chronicBlock">
+          <div class="conditional-inner">
+            <div class="conditional-card">
+              <div class="conditional-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+                Chronic condition details
+              </div>
+              <div class="conditional-grid">
+                <div class="field">
+                  <label>Disease name</label>
+                  <input type="text" name="chronic_disease_name" placeholder="e.g. Type 2 Diabetes">
+                  <span class="error-msg">Please tell us the name of the condition.</span>
+                </div>
+                <div class="field">
+                  <label>How long have you had it?</label>
+                  <input type="text" name="chronic_duration" placeholder="e.g. 2 years">
+                </div>
+                <div class="field">
+                  <label>Are you currently on medication?</label>
+                  <div class="yn-group" id="medicationToggle">
+                    <div class="yn-option">
+                      <input type="radio" name="chronic_on_medication" id="medNo" value="No">
+                      <label for="medNo">No</label>
+                    </div>
+                    <div class="yn-option">
+                      <input type="radio" name="chronic_on_medication" id="medYes" value="Yes">
+                      <label for="medYes">Yes</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Nested: only shown when medication = Yes. -->
+                <div class="conditional-block" id="medicationBlock">
+                  <div class="conditional-inner">
+                    <div class="field">
+                      <label>Medication name</label>
+                      <input type="text" name="chronic_medication_name" placeholder="e.g. Metformin 500mg">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field full">
+                  <label>Brief description <span class="opt">/ additional notes</span></label>
+                  <textarea name="chronic_description" placeholder="How is the condition managed? Any recent hospitalisation, complications or symptoms the medical team should know about?"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="field full">
           <label>Additional Notes <span class="opt">(optional)</span></label>
@@ -676,6 +841,7 @@ img{max-width:100%; display:block;}
     © 2026 BBMS. All rights reserved. &nbsp;|&nbsp; Emergency Helpline: 01-1234567 / 9800000000
   </footer>
 
+<script src="assets/validate.js?v=1"></script>
 <script src="assets/site.js?v=2"></script>
 <script>
 const donateForm = document.getElementById('donateForm');
@@ -706,6 +872,9 @@ function initPage(user) {
     }
   }
 
+  setupChronicForm();
+  bindValidation(donateForm, donorRules);
+
   // Load hospitals into select
   fetch('api/hospitals/hospitals.php')
     .then(readJson)
@@ -730,6 +899,125 @@ function initPage(user) {
     .catch(() => {});
 }
 
+// ===== Validation rules =====
+// Donors must be 18-65 on the day they register, which is stricter than a
+// plain "date in the past" check.
+function ageError(value) {
+  const dob = new Date(value);
+  if (isNaN(dob)) return 'Please enter a valid date of birth';
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  if (age < 18) return 'You must be at least 18 years old to donate';
+  if (age > 65) return 'Donors must be 65 years old or younger';
+  return '';
+}
+
+const donorRules = {
+  full_name:   VRULES.fullName,
+  email:       VRULES.optionalEmail,
+  phone:       VRULES.phone,
+  address:     VRULES.address,
+  blood_group: VRULES.bloodGroup,
+  hospital_id: VRULES.dropdown,
+  gender:      VRULES.dropdown,
+  dob:         { required: true, custom: ageError, requiredMsg: 'Date of birth is required' },
+  weight: {
+    required: true,
+    requiredMsg: 'Weight is required',
+    custom: v => (parseFloat(v) >= 45 ? '' : 'Donors must weigh at least 45 kg')
+  },
+  chronic_illness:        { required: true, errorMsg: 'Please select an option' },
+  chronic_disease_name:   { errorMsg: 'Please tell us the name of the condition' }
+};
+
+// ===== Chronic disease conditional sub-form =====
+
+// Fields that belong to the chronic sub-form rather than the donations row.
+const CHRONIC_FIELDS = [
+  'chronic_disease_name',
+  'chronic_duration',
+  'chronic_on_medication',
+  'chronic_medication_name',
+  'chronic_description'
+];
+
+function isChronicYes() {
+  const yes = donateForm.querySelector('[name=chronic_illness][value=Yes]');
+  return !!(yes && yes.checked);
+}
+
+function isMedicationYes() {
+  const yes = donateForm.querySelector('[name=chronic_on_medication][value=Yes]');
+  return !!(yes && yes.checked);
+}
+
+// A hidden `required` field blocks submit and cannot be focused, so `required`
+// is toggled alongside visibility instead of being hardcoded in the markup.
+function toggleBlock(block, open) {
+  block.classList.toggle('open', open);
+  block.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+
+function clearBlockInputs(block) {
+  block.querySelectorAll('input, textarea').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  block.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+}
+
+function syncMedicationBlock() {
+  const block = document.getElementById('medicationBlock');
+  const open  = isChronicYes() && isMedicationYes();
+  if (!open) clearBlockInputs(block);
+  toggleBlock(block, open);
+}
+
+function syncChronicBlock() {
+  const block = document.getElementById('chronicBlock');
+  const open  = isChronicYes();
+  const name  = donateForm.querySelector('[name=chronic_disease_name]');
+
+  if (!open) clearBlockInputs(block);   // "No" wipes anything already typed
+  toggleBlock(block, open);
+  name.required = open;
+  syncMedicationBlock();
+}
+
+function setupChronicForm() {
+  donateForm.querySelectorAll('[name=chronic_illness]')
+    .forEach(el => el.addEventListener('change', syncChronicBlock));
+  donateForm.querySelectorAll('[name=chronic_on_medication]')
+    .forEach(el => el.addEventListener('change', syncMedicationBlock));
+  syncChronicBlock();
+}
+
+// Collapses the sub-form into the two columns the API stores.
+function collectChronicPayload(data) {
+  const yes = data.chronic_illness === 'Yes';
+  data.has_chronic_disease = yes ? 1 : 0;
+
+  if (yes) {
+    const onMedication = data.chronic_on_medication === 'Yes';
+    data.chronic_disease_details = JSON.stringify({
+      disease:       (data.chronic_disease_name || '').trim(),
+      duration:      (data.chronic_duration || '').trim(),
+      on_medication: onMedication,
+      medication:    onMedication ? (data.chronic_medication_name || '').trim() : '',
+      notes:         (data.chronic_description || '').trim()
+    });
+    data.notes = ('Chronic illness reported. ' + (data.notes || '')).trim();
+  } else {
+    data.chronic_disease_details = null;
+  }
+
+  // The raw sub-form inputs are not columns on `donations`.
+  CHRONIC_FIELDS.forEach(f => delete data[f]);
+  return data;
+}
+
 // Form submit
 donateForm.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -738,14 +1026,27 @@ donateForm.addEventListener('submit', function(e) {
   const data = {};
   new FormData(this).forEach((v, k) => data[k] = v);
 
-  if (data.chronic_illness === 'Yes') {
-    data.notes = ('Chronic illness reported. ' + (data.notes || '')).trim();
+  // Validate every field at once, then jump to the first problem.
+  const rules = Object.assign({}, donorRules);
+  if (data.chronic_illness !== 'Yes') delete rules.chronic_disease_name;
+  else rules.chronic_disease_name = Object.assign({ required: true }, rules.chronic_disease_name);
+
+  if (!validateForm(this, rules)) {
+    alertBox.textContent = 'Please fix the highlighted fields below.';
+    alertBox.className = 'form-alert error show';
+    return;
   }
 
-  this.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+  if (!document.getElementById('confirm').checked || !document.getElementById('terms').checked) {
+    alertBox.textContent = 'Please confirm the eligibility criteria and accept the terms.';
+    alertBox.className = 'form-alert error show';
+    return;
+  }
 
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  alertBox.className = 'form-alert';
+  collectChronicPayload(data);
+
+  setSubmitting(btn, true);
 
   fetch('api/donors/donors.php', {
     method: 'POST',
@@ -756,20 +1057,19 @@ donateForm.addEventListener('submit', function(e) {
   .then(() => {
     alertBox.textContent = 'Registration submitted. You can track its status on My Dashboard.';
     alertBox.className = 'form-alert success show';
-    btn.disabled = false;
-    btn.textContent = 'Register as Donor';
+    setSubmitting(btn, false, 'Register as Donor');
+    clearValidation(donateForm, donorRules);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   })
   .catch(err => {
     alertBox.textContent = err.message || 'Something went wrong. Try again.';
     alertBox.className = 'form-alert error show';
-    btn.disabled = false;
-    btn.textContent = 'Register as Donor';
+    setSubmitting(btn, false, 'Register as Donor');
     if (/18 and 65|birth/i.test(err.message)) {
-      document.getElementById('dobInput').closest('.field').classList.add('has-error');
+      validateField(document.getElementById('dobInput'), donorRules.dob);
     }
     if (/45 kg/i.test(err.message)) {
-      this.querySelector('[name=weight]').closest('.field').classList.add('has-error');
+      validateField(donateForm.querySelector('[name=weight]'), donorRules.weight);
     }
   });
 });

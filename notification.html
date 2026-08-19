@@ -25,6 +25,40 @@
   .notif-time{font-size:11.5px; color:var(--text-light); margin-top:6px;}
   .notif-dot{width:8px; height:8px; border-radius:50%; background:var(--red-600); flex-shrink:0; margin-top:6px;}
   .empty-state{padding:60px 20px; text-align:center; color:var(--text-light); font-size:13.5px;}
+
+  /* ---- Approved-to-donate appointment card ---- */
+  .appt-card{
+    margin-top:12px;
+    border:1.5px solid #c7f0d8;
+    background:#f4fcf7;
+    border-radius:12px;
+    padding:14px 16px;
+    display:grid;
+    gap:12px;
+  }
+  .appt-row{display:flex; gap:11px; align-items:flex-start;}
+  .appt-row .ico{
+    width:32px; height:32px; border-radius:9px; flex-shrink:0;
+    background:#fff; border:1px solid #c7f0d8; color:var(--green);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .appt-row .ico svg{width:16px; height:16px;}
+  .appt-row .lbl{
+    font-size:10.5px; font-weight:700; letter-spacing:.5px;
+    text-transform:uppercase; color:var(--green);
+  }
+  .appt-row .val{font-size:13.5px; font-weight:600; color:var(--text-dark); margin-top:2px; line-height:1.4;}
+  .appt-row .val small{display:block; font-size:12px; font-weight:400; color:var(--text-mid); margin-top:2px;}
+  .appt-note{
+    font-size:11.5px; color:var(--text-mid);
+    border-top:1px dashed #c7f0d8; padding-top:10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .appt-note svg{width:13px; height:13px; flex-shrink:0; color:var(--green);}
+  @media (min-width:560px){
+    .appt-card{grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));}
+    .appt-note{grid-column:1 / -1;}
+  }
 </style>
 </head>
 <body>
@@ -129,7 +163,7 @@
   let currentFilter = 'all';
 
   function loadNotifications() {
-    fetch('api/notifications/notifications.php')
+    fetch('api/notifications/notifications.php?audience=user')
       .then(readJson)
       .then(data => {
         notifications = Array.isArray(data) ? data : [];
@@ -157,23 +191,110 @@
       return;
     }
 
-    list.innerHTML = filtered.map(n => `
+    list.innerHTML = filtered.map(n => {
+      const appt = appointmentOf(n);
+      return `
       <div class="notif-item ${n.is_read == 0 ? 'unread' : ''}" onclick="markRead(${n.id})">
-        <div class="notif-icon ${n.type}">${icons[n.type]}</div>
+        <div class="notif-icon ${n.type}">${icons[n.type] || icons.info}</div>
         <div class="notif-body">
           <div class="notif-title">${escapeHtml(n.title)}</div>
           <div class="notif-desc">${escapeHtml(n.message)}</div>
+          ${appt ? appointmentCard(appt) : ''}
           <div class="notif-time">${timeAgo(n.created_at)}</div>
         </div>
         ${n.is_read == 0 ? '<div class="notif-dot"></div>' : ''}
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
+  }
+
+  // ===== Approved-to-donate appointment details =====
+
+  // notifications.meta arrives as a JSON string; decode it once per row and cache it.
+  function metaOf(n) {
+    if (n._meta === undefined) {
+      try { n._meta = n.meta ? JSON.parse(n.meta) : null; }
+      catch (e) { n._meta = null; }
+    }
+    return n._meta;
+  }
+
+  /**
+   * Structured appointment details for an approval notification, or null.
+   * Prefers the meta column; falls back to reading the message for rows written
+   * before meta existed.
+   */
+  function appointmentOf(n) {
+    if (n.type !== 'success') return null;
+
+    const m = metaOf(n);
+    if (m && m.kind === 'appointment') {
+      return {
+        hospital: m.hospital_name || '',
+        address:  m.hospital_address || '',
+        date:     m.appointment_date || '',
+        time:     m.appointment_time || ''
+      };
+    }
+
+    // Covers both message templates: "visit X located at Y" and "visit X at Y".
+    const match = /visit (.+?) (?:located )?at (.+?) on (.+?) at ([^.]+)\./.exec(n.message || '');
+    if (!match) return null;
+    return { hospital: match[1], address: match[2], date: match[3], time: match[4] };
+  }
+
+  function apptDateTime(appt) {
+    // meta stores ISO values; the message fallback is already human readable.
+    const isoDate = /^\d{4}-\d{2}-\d{2}$/.test(appt.date);
+    const isoTime = /^\d{1,2}:\d{2}/.test(appt.time);
+    if (!isoDate && !isoTime) return { date: appt.date, time: appt.time };
+
+    const d = new Date(`${appt.date}T${isoTime ? appt.time : '00:00:00'}`);
+    if (isNaN(d)) return { date: appt.date, time: appt.time };
+
+    return {
+      date: d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+      time: isoTime ? d.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true }) : appt.time
+    };
+  }
+
+  const APPT_ICONS = {
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+    hospital: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V9l8-5 8 5v12"/><path d="M4 21h16"/><path d="M12 10v6M9 13h6"/></svg>',
+    pin:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+    id:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>'
+  };
+
+  function apptRow(icon, label, value) {
+    return `
+        <div class="appt-row">
+          <span class="ico">${APPT_ICONS[icon]}</span>
+          <div>
+            <div class="lbl">${escapeHtml(label)}</div>
+            <div class="val">${escapeHtml(value)}</div>
+          </div>
+        </div>`;
+  }
+
+  function appointmentCard(appt) {
+    const when = apptDateTime(appt);
+    const dateTime = when.time ? when.date + ' at ' + when.time : when.date;
+
+    return `
+      <div class="appt-card">
+        ${apptRow('calendar', 'Date & Time', dateTime)}
+        ${apptRow('hospital', 'Hospital', appt.hospital || 'Blood bank')}
+        ${appt.address ? apptRow('pin', 'Address', appt.address) : ''}
+        <div class="appt-note">
+          ${APPT_ICONS.id}
+          Please bring a valid ID with you.
+        </div>
+      </div>`;
   }
 
   function markRead(id) {
     const n = notifications.find(x => x.id == id);
     if (!n || n.is_read == 1) return;
-    fetch('api/notifications/notifications.php?id=' + id, { method: 'PUT' })
+    fetch('api/notifications/notifications.php?audience=user&id=' + id, { method: 'PUT' })
       .then(() => {
         n.is_read = 1;
         render();
@@ -182,7 +303,7 @@
   }
 
   function markAllRead() {
-    fetch('api/notifications/notifications.php', { method: 'PUT' })
+    fetch('api/notifications/notifications.php?audience=user', { method: 'PUT' })
       .then(() => {
         notifications.forEach(n => n.is_read = 1);
         render();

@@ -84,50 +84,62 @@
   © 2026 BBMS. All rights reserved. &nbsp;|&nbsp; Emergency Helpline: 01-1234567 / 9800000000
 </footer>
 
+<script src="assets/validate.js?v=1"></script>
 <script src="assets/site.js?v=2"></script>
 <script>
   const signupForm = document.getElementById('signupForm');
   const alertBox = signupForm.querySelector('.form-alert');
   const password = signupForm.querySelector('[name=password]');
   const confirmPassword = signupForm.querySelector('[name=confirm_password]');
+  const termsBox = document.getElementById('terms');
+
+  const signupRules = {
+    full_name: VRULES.fullName,
+    email:     VRULES.email,
+    phone:     VRULES.phone,
+    password:  VRULES.password,
+    confirm_password: {
+      required: true,
+      match: '[name=password]',
+      requiredMsg: 'Please confirm your password',
+      errorMsg: 'Passwords do not match'
+    }
+  };
+
+  // Live validation as the user types, plus the phone mask (digits, max 10).
+  bindValidation(signupForm, signupRules);
+
+  termsBox.addEventListener('change', function () {
+    this.closest('.checkbox-row').classList.toggle('has-error', !this.checked);
+  });
 
   signupForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    signupForm.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+    const ok    = validateForm(signupForm, signupRules);
+    const terms = termsBox.checked;
+    termsBox.closest('.checkbox-row').classList.toggle('has-error', !terms);
 
-    let valid = true;
-    signupForm.querySelectorAll('[required]').forEach(input => {
-      const field = input.closest('.field');
-      if (!input.value || (input.type === 'checkbox' && !input.checked)) {
-        valid = false;
-        if (field) field.classList.add('has-error');
-      }
-    });
-
-    if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
-      valid = false;
-      const confirmField = confirmPassword.closest('.field');
-      confirmField.classList.add('has-error');
-      confirmField.querySelector('.error-msg').textContent = 'Passwords do not match.';
-    }
-
-    if (!valid) {
-      alertBox.textContent = 'Please fix the errors below.';
+    if (!ok || !terms) {
+      alertBox.textContent = terms
+        ? 'Please fix the errors below.'
+        : 'Please accept the Terms of Service to continue.';
       alertBox.className = 'form-alert error show';
+      if (ok && !terms) termsBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
+    alertBox.className = 'form-alert';
+
     const btn = signupForm.querySelector('button[type=submit]');
     const data = {
-      full_name: signupForm.querySelector('[name=full_name]').value,
-      email:     signupForm.querySelector('[name=email]').value,
-      phone:     signupForm.querySelector('[name=phone]').value,
+      full_name: signupForm.querySelector('[name=full_name]').value.trim(),
+      email:     signupForm.querySelector('[name=email]').value.trim(),
+      phone:     signupForm.querySelector('[name=phone]').value.trim(),
       password:  password.value
     };
 
-    btn.disabled = true;
-    btn.textContent = 'Please wait...';
+    setSubmitting(btn, true);
 
     fetch('api/auth/signup.php', {
       method: 'POST',
@@ -137,10 +149,12 @@
     .then(r => r.json())
     .then(res => {
       if (res.error) {
-        alertBox.textContent = res.error;
+        // The API returns per-field messages, so show them under the inputs
+        // rather than collapsing everything into one banner.
+        const painted = applyServerErrors(signupForm, res.fields);
+        alertBox.textContent = painted ? 'Please fix the errors below.' : res.error;
         alertBox.className = 'form-alert error show';
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
+        setSubmitting(btn, false, 'Create Account');
         return;
       }
       alertBox.textContent = 'Account created! Redirecting...';
@@ -151,8 +165,7 @@
     .catch(() => {
       alertBox.textContent = 'Something went wrong. Try again.';
       alertBox.className = 'form-alert error show';
-      btn.disabled = false;
-      btn.textContent = 'Create Account';
+      setSubmitting(btn, false, 'Create Account');
     });
   });
 </script>

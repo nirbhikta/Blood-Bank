@@ -38,9 +38,15 @@ switch ($method) {
             ? date('Y-m-d', strtotime($lastDonated . ' +90 days'))
             : null;
 
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0');
+        // Two inboxes, two counts: the site header badge shows personal unread,
+        // the admin console badge shows operational unread.
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND audience = 'user' AND is_read = 0");
         $stmt->execute([$user['id']]);
         $user['unread_notifications'] = (int) $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND audience = 'admin' AND is_read = 0");
+        $stmt->execute([$user['id']]);
+        $user['unread_admin_notifications'] = (int) $stmt->fetchColumn();
 
         respond($user);
         break;

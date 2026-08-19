@@ -219,16 +219,20 @@ img{max-width:100%; display:block;}
 /* User menu: notification bell + profile dropdown        */
 /* ===================================================== */
 .user-menu{display:flex; align-items:center; gap:20px;}
-.bell-wrap{position:relative; display:flex; cursor:pointer;}
+/* .bell-wrap is the positioning context; .bell-badge overlays the bell's top-right
+   corner rather than flowing underneath it. */
+.bell-wrap{position:relative; display:inline-flex; align-items:center; cursor:pointer;}
 .bell-wrap svg{width:21px; height:21px; color:var(--text-dark);}
 .bell-badge{
   position:absolute; top:-6px; right:-7px;
   background:var(--red-600); color:#fff;
   font-size:10px; font-weight:700;
   min-width:17px; height:17px; padding:0 3px;
+  line-height:1;
   border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   border:2px solid #fff;
+  pointer-events:none;
 }
 .profile-menu{position:relative;}
 .profile-trigger{
@@ -279,3 +283,44 @@ img{max-width:100%; display:block;}
   font-size:13.5px; font-weight:600; color:var(--text-mid);
 }
 .auth-tabs a.active{background:#fff; color:var(--red-600); box-shadow:0 2px 6px rgba(0,0,0,.06);}
+/* ===================================================== */
+/* Form validation states (assets/validate.js)            */
+/* ===================================================== */
+.field-error{
+  border-color:var(--red-600) !important;
+  background:var(--red-50) !important;
+}
+.field-success{
+  border-color:#16a34a !important;
+}
+.error-msg{
+  font-size:11.5px;
+  color:var(--red-600);
+  margin-top:4px;
+  display:none;
+}
+.error-msg.show{
+  display:block;
+}
+
+/* Busy submit button */
+.btn-spinner{
+  width:13px; height:13px;
+  border:2px solid currentColor;
+  border-right-color:transparent;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:8px;
+  vertical-align:-2px;
+  animation:btn-spin .6s linear infinite;
+}
+@keyframes btn-spin{to{transform:rotate(360deg);}}
+button.is-loading{opacity:.75; cursor:progress;}
+@media (prefers-reduced-motion:reduce){
+  .btn-spinner{animation-duration:2s;}
+}
+
+/* The round .notif-trigger button is bigger than the bare .bell-wrap link, so
+   the badge tucks into the icon corner instead of hanging off the circle. */
+.notif-trigger{position:relative;}
+.notif-trigger .bell-badge{top:4px; right:4px;}

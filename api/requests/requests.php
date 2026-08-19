@@ -27,6 +27,21 @@ switch ($method) {
         if (!filter_var($d['hospital_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]))
             respond(['error' => 'Please select a valid hospital.'], 422);
 
+        /*
+         * Name and phone formats, mirroring the browser rules in
+         * assets/validate.js. Returned per field so the form can show each
+         * message under the right input.
+         */
+        $fields = [];
+        if (!preg_match('/^[a-zA-Z\s]{3,60}$/', trim($d['patient_name'])))
+            $fields['patient_name'] = 'Patient name must contain only letters and spaces (min 3 characters)';
+        if (!preg_match('/^[a-zA-Z\s]{3,60}$/', trim($d['contact_name'])))
+            $fields['contact_name'] = 'Full name must contain only letters and spaces (min 3 characters)';
+        if (!preg_match('/^98\d{8}$/', trim($d['contact_phone'])))
+            $fields['contact_phone'] = 'Phone number must start with 98 and be exactly 10 digits (e.g. 9800000000)';
+
+        if ($fields) respond(['error' => 'Validation failed', 'fields' => $fields], 422);
+
         $status = 'Pending';
         if (($_SESSION['role'] ?? '') === 'admin' && isset($d['status'])) {
             if (!in_array($d['status'], ['Pending', 'Approved', 'Fulfilled', 'Rejected'], true))
@@ -144,6 +159,17 @@ switch ($method) {
             respond(['error' => 'Units must be at least 1.'], 422);
         if (!filter_var($d['hospital_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]))
             respond(['error' => 'Please select a valid hospital.'], 422);
+
+        // Same name and phone formats the POST handler enforces.
+        $fields = [];
+        if (!preg_match('/^[a-zA-Z\s]{3,60}$/', trim($d['patient_name'])))
+            $fields['patient_name'] = 'Patient name must contain only letters and spaces (min 3 characters)';
+        if (!empty($d['contact_name']) && !preg_match('/^[a-zA-Z\s]{3,60}$/', trim($d['contact_name'])))
+            $fields['contact_name'] = 'Full name must contain only letters and spaces (min 3 characters)';
+        if (!empty($d['contact_phone']) && !preg_match('/^98\d{8}$/', trim($d['contact_phone'])))
+            $fields['contact_phone'] = 'Phone number must start with 98 and be exactly 10 digits (e.g. 9800000000)';
+
+        if ($fields) respond(['error' => 'Validation failed', 'fields' => $fields], 422);
 
         $wasFulfilled = $existing['status'] === 'Fulfilled';
         $nowFulfilled = $status === 'Fulfilled';

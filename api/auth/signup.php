@@ -9,21 +9,49 @@ $email = trim($data['email'] ?? '');
 $phone = trim($data['phone'] ?? '');
 $pass  = $data['password'] ?? '';
 
-if (!$name || !$email || !$phone || !$pass)
-    respond(['error' => 'All fields are required.'], 422);
+/*
+ * Second layer of validation: the browser rules in assets/validate.js can be
+ * bypassed, so every rule is re-checked here. Errors come back keyed by field
+ * name so the form can show each message under the right input.
+ */
+$fields = [];
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-    respond(['error' => 'Invalid email address.'], 422);
+if ($name === '') {
+    $fields['full_name'] = 'Full name is required';
+} elseif (!preg_match('/^[a-zA-Z\s]{3,60}$/', $name)) {
+    $fields['full_name'] = 'Full name must contain only letters and spaces (min 3 characters)';
+}
 
-if (!validEmailDomain($email))
-    respond(['error' => emailDomainError()], 422);
+if ($email === '') {
+    $fields['email'] = 'Email is required';
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $fields['email'] = 'Please enter a valid email address';
+} elseif (!validEmailDomain($email)) {
+    $fields['email'] = emailDomainError();
+}
 
-if (strlen($pass) < 6)
-    respond(['error' => 'Password must be at least 6 characters.'], 422);
+if ($phone === '') {
+    $fields['phone'] = 'Phone number is required';
+} elseif (!preg_match('/^98\d{8}$/', $phone)) {
+    $fields['phone'] = 'Phone number must start with 98 and be exactly 10 digits (e.g. 9800000000)';
+}
+
+if ($pass === '') {
+    $fields['password'] = 'Password is required';
+} elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $pass)) {
+    $fields['password'] = 'Password must be at least 8 characters with uppercase, lowercase and a number';
+}
+
+if ($fields) respond(['error' => 'Validation failed', 'fields' => $fields], 422);
 
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);
-if ($stmt->fetch()) respond(['error' => 'Email already registered.'], 409);
+if ($stmt->fetch()) {
+    respond([
+        'error'  => 'Email already registered.',
+        'fields' => ['email' => 'That email is already registered'],
+    ], 409);
+}
 
 $hash = password_hash($pass, PASSWORD_BCRYPT);
 $stmt = $pdo->prepare('INSERT INTO users (full_name, email, phone, password) VALUES (?,?,?,?)');

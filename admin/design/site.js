@@ -33,7 +33,8 @@ function loadAdminSession(onReady) {
         return;
       }
       document.querySelectorAll('.admin-name').forEach(el => el.textContent = user.full_name);
-      updateBellBadge(user.unread_notifications);
+      // Admin bell counts operational alerts only, never the admin personal inbox.
+      updateBellBadge(user.unread_admin_notifications);
       if (onReady) onReady(user);
     })
     .catch(() => {});
@@ -46,7 +47,13 @@ function readJson(res) {
     return Promise.reject(new Error('Session expired'));
   }
   return res.json().then(data => {
-    if (!res.ok) throw new Error(data.error || 'Request failed');
+    if (!res.ok) {
+      // Carry per-field messages through so forms can show them under the
+      // matching input instead of only in the banner.
+      const err = new Error(data.error || 'Request failed');
+      err.fields = data.fields || null;
+      throw err;
+    }
     return data;
   });
 }
